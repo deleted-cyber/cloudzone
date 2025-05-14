@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Tiny Platformer</title>
+  <style>
+    body { margin: 0; background: black; }
+    canvas { display: block; margin: auto; background: #222; }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="640" height="360"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = { x: 50, y: 280, w: 20, h: 20, dy: 0, grounded: false };
+    const gravity = 0.6;
+    const jumpPower = -12;
+    const platforms = [{ x: 0, y: 340, w: 640, h: 20 }, { x: 200, y: 280, w: 100, h: 20 }];
+
+    document.addEventListener("keydown", e => {
+      if (e.code === "Space" && player.grounded) {
+        player.dy = jumpPower;
+        player.grounded = false;
+      }
+    });
+
+    function update() {
+      player.dy += gravity;
+      player.y += player.dy;
+
+      player.grounded = false;
+      for (let pf of platforms) {
+        if (player.x < pf.x + pf.w &&
+            player.x + player.w > pf.x &&
+            player.y < pf.y + pf.h &&
+            player.y + player.h > pf.y) {
+          player.y = pf.y - player.h;
+          player.dy = 0;
+          player.grounded = true;
+        }
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+      ctx.fillStyle = "gray";
+      for (let pf of platforms) ctx.fillRect(pf.x, pf.y, pf.w, pf.h);
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    loop();
+  </script>
+</body>
+</html>
